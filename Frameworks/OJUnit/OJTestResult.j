@@ -1,7 +1,11 @@
-@import <Foundation/Foundation.j>
+@import <Foundation/CPArray.j>
+@import <Foundation/CPException.j>
+@import <Foundation/CPLog.j>
 
 @import "OJTestFailure.j"
 @import "OJTestListenerText.j"
+
+@global AssertionFailedError
 
 @implementation OJTestResult : CPObject
 {
@@ -66,7 +70,7 @@
 
 - (void)endTest:(OJTest)aTest
 {
-    
+
     for (var i = 0; i < _listeners.length; i++)
         [_listeners[i] endTest:aTest];
 }

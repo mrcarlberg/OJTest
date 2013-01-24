@@ -1,4 +1,7 @@
-@import <Foundation/Foundation.j>
+@import <Foundation/CPException.j>
+@import "OJTestCase.j"
+
+@global AssertionFailedError
 
 function convertRhinoBacktrace(javaException) {
     var s = new Packages.java.io.StringWriter();

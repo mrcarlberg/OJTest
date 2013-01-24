@@ -1,4 +1,6 @@
-@import <Foundation/Foundation.j>
+@import <Foundation/CPArray.j>
+@import <Foundation/CPLog.j>
+@import <Foundation/CPString.j>
 
 @implementation OJTestSuite : CPObject
 {
@@ -39,24 +41,24 @@
             {
                 [self addTestMethod:methods[i].name names:names class:aClass]
             }
-            
+
             var autotestObject;
             if([aClass respondsToSelector:@selector(autotest)])
                 autotestObject = objj_msgSend(aClass, "autotest");
-                
+
             if(autotestObject && ![_testClassesRan containsObject:aClass])
             {
                 [self createAccessorAutotests:class_copyIvarList([autotestObject class]) inClass:aClass forObject:autotestObject];
                 [_testClassesRan addObject:aClass];
             }
-        
+
             superClass = superClass.super_class;
         }
-    
+
         if ([_tests count] == 0)
             CPLog.warn("No tests");
     }
-        
+
     return self;
 }
 
@@ -77,7 +79,7 @@
                 [OJAssert assert:expected equals:actual];
             });
             [self addTestMethod:newMethodName names:[] class:aClass];
-        
+
             if(ivars[i].accessors.set)
             {
                 var setAccessorName = ivars[i].accessors.set;
@@ -115,7 +117,7 @@
 {
     if ([names containsObject:selector] || ![self isTestMethod:selector])
         return;
-        
+
     [names addObject:selector];
     [self addTest:[self createTestWithSelector:selector class:aClass]];
 }
@@ -123,7 +125,7 @@
 - (OJTest)createTestWithSelector:(SEL)selector class:(Class)aClass
 {
     var initSelector = [self getTestConstructor:aClass];
-    
+
     var test;
     if (selector.indexOf(":") < 0)
     {
@@ -135,7 +137,7 @@
     {
         test = [aClass performSelector:initSelector withObject:selector];
     }
-        
+
     return test;
 }
 
@@ -155,7 +157,7 @@
     {
         if ([result shouldStop])
             break;
-            
+
         [_tests[i] run:result];
     }
 }

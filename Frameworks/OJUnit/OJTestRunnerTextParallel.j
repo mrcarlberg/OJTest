@@ -1,5 +1,7 @@
 @import "OJTestRunnerText.j"
 
+@global java
+
 @implementation OJTestRunnerTextParallel : OJTestRunnerText
 {
     CPArray         threadPool;
@@ -33,13 +35,13 @@
         while([self threadsAvailable])
         {
             if (args.length === 0) break;
-            
+
             var testCaseFile = [self nextTest:args];
-    
+
             if(!testCaseFile || testCaseFile == "") break;
-    
+
             var matches = testCaseFile.match(/([^\/]+)\.j$/);
-    
+
             if (matches)
             {
                 system.stderr.write(matches[1]).flush();
@@ -48,11 +50,11 @@
                 [self beforeRequire];
                 require(testCaseFile);
                 var suite = [self getTest:testCaseClass];
-            
+
                 var runTestFunction = function() {
                     [self run:suite];
                 };
-                
+
                 var thread = [self firstAvailableThread];
                 [thread setStartFunction:runTestFunction];
                 [thread start];
@@ -61,7 +63,7 @@
                 system.stderr.write("Skipping " + testCaseFile + ": not an Objective-J source file.\n").flush();
         }
     }
-        
+
     [self report];
 }
 
@@ -70,7 +72,7 @@
     for(var i = 0, n = threadPool.length; i < n; i++)
         if (![threadPool[i] isRunning])
             return YES;
-            
+
     return NO;
 }
 
@@ -79,7 +81,7 @@
     for(var i = 0, n = threadPool.length; i < n; i++)
         if (![threadPool[i] isRunning])
             return threadPool[i];
-            
+
     return nil;
 }
 
@@ -92,7 +94,7 @@
     for(var i = 0, n = threadPool.length; i < n; i++)
         if ([threadPool[i] isRunning])
             return NO;
-            
+
     return YES;
 }
 
@@ -106,7 +108,7 @@
             break;
         }
     }
-    
+
     [super report];
 }
 

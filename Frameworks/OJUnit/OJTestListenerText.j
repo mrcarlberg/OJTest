@@ -1,4 +1,6 @@
-@import <Foundation/Foundation.j>
+@import <Foundation/CPArray.j>
+@import <Foundation/CPException.j>
+@import <Foundation/CPLog.j>
 
 stream = require("narwhal/term").stream;
 
@@ -27,7 +29,7 @@ stream = require("narwhal/term").stream;
 - (void)addError:(OJTestFailure)error
 {
     _errors.push(error);
-    
+
     stream.print("\n\0red(addError test="+[error description]+"\0)");
     stream.print("\n\0red("+[error trace]+"\0)");
 }

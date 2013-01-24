@@ -7,7 +7,7 @@ SYSTEM = require("system");
     CPDictionary            foundMethods;
     CPDictionary            calledMethods;
     CPArray                 ignoreClasses;
-    
+
     float                   threshold       @accessors;
 }
 
@@ -18,8 +18,8 @@ SYSTEM = require("system");
     {
         [self reset];
         threshold = aThreshold;
-        
-        ignoreClasses = ["CPMutableDictionary", "CPString", "CPArray", "CPObject", "CPInvocation", 
+
+        ignoreClasses = ["CPMutableDictionary", "CPString", "CPArray", "CPObject", "CPInvocation",
             "CPDate", "CPNumber", "CPException"];
     }
     return self;
@@ -38,7 +38,7 @@ SYSTEM = require("system");
 
 - (void)foundMethod:(SEL)aMethod
 {
-    if([ignoreClasses containsObject:[[aMethod klass] description]] 
+    if([ignoreClasses containsObject:[[aMethod klass] description]]
         || [[[aMethod klass] description] hasSuffix:@"Test"]
         || [[[aMethod klass] description] hasPrefix:@"CP"]
         || [[[aMethod klass] description] hasPrefix:@"_"]
@@ -50,20 +50,20 @@ SYSTEM = require("system");
 
 - (void)calledMethod:(SEL)aMethod
 {
-    if([ignoreClasses containsObject:[[aMethod klass] description]] 
+    if([ignoreClasses containsObject:[[aMethod klass] description]]
         || [[[aMethod klass] description] hasSuffix:@"Test"]
         || [[[aMethod klass] description] hasPrefix:@"CP"]
         || [[[aMethod klass] description] hasPrefix:@"_"]
         || [[[aMethod klass] description] hasPrefix:@"$"]
         || [[[aMethod klass] description] hasPrefix:@"OJ"]) return;
-    
+
     [calledMethods setObject:[calledMethods objectForKey:aMethod]+1 forKey:aMethod];
 }
 
 - (void)report
 {
     print("Calculating report...");
-    
+
     if([calledMethods count] > 0)
         print("Methods Called: " + [calledMethods allValues].reduce(function(x, y) { return x + y; }));
 
@@ -75,31 +75,31 @@ SYSTEM = require("system");
 
 - (void)generateHTML
 {
-    FILE = require("file");
+    var FILE = require("file");
     var totalNumCalled = 0;
     var totalNumFound = 0;
-    
+
     if(FILE.exists(FILE.absolute("results")))
         FILE.rmtree(FILE.absolute("results"));
-    
+
     FILE.mkdir(FILE.absolute("results"));
-    
+
     if(FILE.exists(FILE.absolute("results/index.html")))
         FILE.rm(FILE.absolute("results/index.html"));
-    
+
     var index = "";
 
     var groupCalledMethods = [self groupMethodsByClassIn:calledMethods];
     var groupFoundMethods = [self groupMethodsByClassIn:foundMethods];
-    
+
     for(var i = 0; i < [[groupCalledMethods allKeys] count]; i++) {
         var key = [[groupCalledMethods allKeys] objectAtIndex:i];
         var numCalled = [[groupCalledMethods objectForKey:key] count];
         var numFound = [[groupFoundMethods objectForKey:key] count];
-        
+
         for(var k = 0; k < [[groupCalledMethods objectForKey:key] count]; k++) {
             var method = [[groupCalledMethods objectForKey:key] objectAtIndex:k];
-            
+
             if(![[groupFoundMethods objectForKey:key] containsObject:method]) {
                 numCalled--;
             }
@@ -107,24 +107,24 @@ SYSTEM = require("system");
 
         if(numFound > 0) {
             index += li(a(key + " - " + numCalled + "/" + numFound + " : " + (numCalled/numFound * 100).toPrecision(4) + "\%", key+".html"));
-        
+
             var link = "";
-        
+
             for(var j = 0; j < [[groupFoundMethods objectForKey:key] count]; j++) {
                 var array = [[groupFoundMethods objectForKey:key] objectAtIndex:j];
                 link += div(array, ([[groupCalledMethods objectForKey:key] containsObject:array] ? "#66FF66" : "#FF6666"));
             }
-        
-            FILE.write(FILE.absolute("results/" + key + ".html"), html(head(title(key) + stylesheet()) 
+
+            FILE.write(FILE.absolute("results/" + key + ".html"), html(head(title(key) + stylesheet())
                 + body(divid(div(a("Home", "index.html")) + link, "result-container"))));
         }
-        
+
         totalNumCalled += numCalled;
         totalNumFound += numFound;
     }
 
     FILE.write(FILE.absolute("results/index.html"), html(head(title("OJCov Results") + stylesheet()) + body(
-            h1("The results are in!") + 
+            h1("The results are in!") +
             h2("Run at " + [CPDate date]) +
             ul(index)
             )));
@@ -151,7 +151,7 @@ SYSTEM = require("system");
 - (CPDictionary)groupMethodsByClassIn:(CPDictionary)methodList
 {
     var result = [CPDictionary dictionary];
-    
+
     for(var i = 0; i < [methodList count]; i++) {
         var key = [[[methodList allKeys] objectAtIndex:i] klass];
         if([[result allKeys] containsObject:key]) {
@@ -161,7 +161,7 @@ SYSTEM = require("system");
             [result setObject:[[[methodList allKeys] objectAtIndex:i]] forKey:key];
         }
     }
-    
+
     return result;
 }
 
@@ -173,7 +173,7 @@ SYSTEM = require("system");
 - (CPArray)methodsNotCalled
 {
     var result = [CPArray arrayWithArray:[foundMethods allKeys]];
-    
+
     for(var i = 0; i < [calledMethods count]; i++)
     {
         var key = [calledMethods allKeys][i];
@@ -182,7 +182,7 @@ SYSTEM = require("system");
             [result removeObject:key];
         }
     }
-    
+
     return result;
 }
 
